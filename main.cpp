@@ -1,6 +1,10 @@
 #include <GL/glew.h>
 #include <GLFW/glfw3.h>
 
+#include <glm/glm.hpp>
+#include <glm/gtc/matrix_transform.hpp>
+#include <glm/gtc/type_ptr.hpp>
+
 #include <iostream>
 
 #define STB_IMAGE_IMPLEMENTATION
@@ -30,12 +34,56 @@ int main()
 	int width, height, nrChannels;
 	unsigned char* data = stbi_load("container.jpg", &width, &height, &nrChannels, 0);
 
-	float vertices[] = {
+	/*float vertices[] = {
 		// positions          // colors           // texture coords
 		 0.5f,  0.5f, 0.0f,   1.0f, 0.0f, 0.0f,   1.0f, 1.0f,   // top right
 		 0.5f, -0.5f, 0.0f,   0.0f, 1.0f, 0.0f,   1.0f, 0.0f,   // bottom right
 		-0.5f, -0.5f, 0.0f,   0.0f, 0.0f, 1.0f,   0.0f, 0.0f,   // bottom left
 		-0.5f,  0.5f, 0.0f,   1.0f, 1.0f, 0.0f,   0.0f, 1.0f    // top left 
+	};*/
+
+	float vertices[] = {
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 0.0f,
+
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 1.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f, -0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f, -0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f, -0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f, -0.5f, -0.5f,  0.0f, 1.0f,
+
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f,
+	 0.5f,  0.5f, -0.5f,  1.0f, 1.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	 0.5f,  0.5f,  0.5f,  1.0f, 0.0f,
+	-0.5f,  0.5f,  0.5f,  0.0f, 0.0f,
+	-0.5f,  0.5f, -0.5f,  0.0f, 1.0f
 	};
 
 	float position[] = {
@@ -56,30 +104,32 @@ int main()
 			1.0f, 0.0f,  // lower-right corner
 			0.5f, 1.0f   // top-center corner
 	};
-	std::cout << "heo\n";
+    
+	
 	const char* vertexShaderSource = 
 		"#version 330 core\n"
 		"layout (location = 0) in vec3 aPos;\n"
-		"layout(location = 1) in vec3 aColor;\n"
-	    "layout(location = 2) in vec2 aTexCoord;\n"
+		//"layout(location = 1) in vec3 aColor;\n"
+	    "layout(location = 1) in vec2 aTexCoord;\n"
 		"out vec3 ourColor;\n"
 	    "out vec2 TexCoord;\n"
+		"uniform mat4 transform;"
 		"void main()\n"
 		"{\n"
-			"gl_Position = vec4(aPos, 1.0);\n"
-			"ourColor = aColor;\n"
-			"TexCoord = aTexCoord;\n"
+			"gl_Position = transform * vec4(aPos, 1.0f);\n"
+			//"ourColor = aColor;\n"
+			"TexCoord = vec2(aTexCoord.x, aTexCoord.y);\n"
 		"}\0";
 
 	const char* fragmentShaderSource =
 		"#version 330 core\n"
 		"out vec4 FragColor;\n"
-		"in vec3 ourColor;\n"
+		//"in vec3 ourColor;\n"
 		"in vec2 TexCoord;\n"
 		"uniform sampler2D ourTexture;\n"
 		"void main()\n"
 		"{\n"
-		"   FragColor = texture(ourTexture, TexCoord) * vec4(ourColor, 1.0);\n"
+		"   FragColor = texture(ourTexture, TexCoord) * vec4(1.0, 1.0, 1.0, 1.0);\n"
 		"}\n";
 
 	unsigned int VAO;
@@ -90,16 +140,16 @@ int main()
 	glGenBuffers(1, &buffer);
 	glBindBuffer(GL_ARRAY_BUFFER, buffer);
 	//glBuffer
-	glBufferData(GL_ARRAY_BUFFER, 4*8*sizeof(float), vertices, GL_STATIC_DRAW);
+	glBufferData(GL_ARRAY_BUFFER, 5*6*6*sizeof(float), vertices, GL_STATIC_DRAW);
 
 	//glVertexAttribPointer(0, 8, GL_FLOAT, GL_FALSE, 8 * sizeof(unsigned), 0);
 	//glEnableVertexAttribArray(0);
-	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)0);
+	glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)0);
 	glEnableVertexAttribArray(0);
-	glVertexAttribPointer(1, 3,  GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(3 * sizeof(float)));
+	glVertexAttribPointer(1, 2,  GL_FLOAT, GL_FALSE, 5 * sizeof(float), (void*)(3 * sizeof(float)));
 	glEnableVertexAttribArray(1);
-	glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
-	glEnableVertexAttribArray(2);
+	//glVertexAttribPointer(2, 2, GL_FLOAT, GL_FALSE, 8 * sizeof(float), (void*)(6 * sizeof(float)));
+	//glEnableVertexAttribArray(2);
 	unsigned int index_buffer;
 	glGenBuffers(1, &index_buffer);
 
@@ -129,6 +179,7 @@ int main()
 	glCompileShader(fragmentShader);
 	unsigned int shaderProgram;
 	shaderProgram = glCreateProgram();
+	
 	glAttachShader(shaderProgram, vertexShader);
 	glAttachShader(shaderProgram, fragmentShader);
 	glLinkProgram(shaderProgram);
@@ -156,9 +207,10 @@ int main()
 	//float greenValue = (sin(timeValue) / 2.0f) + 0.5f;
 	//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 	
-
+	
 	//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 	//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
+	int j = 0;
 	while (!glfwWindowShouldClose(window))
 	{
 		// input
@@ -180,20 +232,28 @@ int main()
 		glUseProgram(shaderProgram);
 		glBindTexture(GL_TEXTURE_2D, texture);
 		glBindVertexArray(VAO);
-		glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
+		//model = glm::rotate(model, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+		glm::mat4 trans = glm::mat4(1.0f);
+	    //trans = glm::scale(trans, glm::vec3(0.5, 0.5, 0.5));
+		trans = glm::rotate(trans, (float)glfwGetTime() * glm::radians(50.0f), glm::vec3(0.5f, 1.0f, 0.0f));
+		//trans = glm::rotate(trans, glm::radians(90.0f), glm::vec3(0.0, 0.0, 1.0));
+		unsigned int transformLoc = glGetUniformLocation(shaderProgram, "transform");
+		glUniformMatrix4fv(transformLoc, 1, GL_FALSE, glm::value_ptr(trans));
+		
+		//glDrawElements(GL_TRIANGLES, 6, GL_UNSIGNED_INT, 0);
 		// update shader uniform
 		//float timeValue = glfwGetTime();
 		//float greenValue = sin(timeValue) / 2.0f + 0.5f;
 		//int vertexColorLocation = glGetUniformLocation(shaderProgram, "ourColor");
 		//glUniform4f(vertexColorLocation, 0.0f, greenValue, 0.0f, 1.0f);
 		
-		//glDrawArrays(GL_TRIANGLES, 0, 3);
+		glDrawArrays(GL_TRIANGLES, 0, 36);
 		//glDrawElements(GL_TRIANGLES,9, GL_UNSIGNED_INT, nullptr);
 		//glDrawElements(GL_TRIANGLES, 3, GL_FLOAT, nullptr);
 		glfwSwapBuffers(window);
 		// check and call events and swap the buffers
 	    glfwPollEvents();
-		
+		j++;
 	}
 
 	stbi_image_free(data);
